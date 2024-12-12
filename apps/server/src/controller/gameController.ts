@@ -10,9 +10,9 @@ export const diceLogic = async (req: Request, res: Response) => {
     const isWin = roll <= rollUnder;
 
     // Prisma query
-    const user = await db.balance.findUnique({
+    const user = await db.user.findUnique({
       where: {
-        userId
+        id: userId
       },
     });
 
@@ -25,9 +25,9 @@ export const diceLogic = async (req: Request, res: Response) => {
 
     let payout;
 
-    let newBalance = user.amount
+    let newBalance = user.balance
 
-    if (user.amount < betAmount) {
+    if (user.balance < betAmount) {
       res.status(400).json({ message: "Insufficient balance" });
       return;
     }
@@ -45,14 +45,15 @@ export const diceLogic = async (req: Request, res: Response) => {
       winAmount = 0;
     }
 
-    const updatedUser = await db.balance.update({
+    const updatedUser = await db.user.update({
       where: {
-        userId:  userId,
+        id:  userId,
       },
       data: {
-        amount:  newBalance
+        balance:  newBalance
       },
     });
+
     await db.gameTransaction.create({
       data: {
           userId,
@@ -68,7 +69,7 @@ export const diceLogic = async (req: Request, res: Response) => {
       roll,
       winAmount,
       payout,
-      newBalance: updatedUser.amount,
+      newBalance: updatedUser.balance,
     });
   } catch (error) {
     console.log(error)
