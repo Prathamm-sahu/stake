@@ -8,6 +8,21 @@ import { RotateCw } from "lucide-react";
 import axios from "axios";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import TransactionTable from "@/components/TransactionTable";
+
+interface GameTransactionType {
+  id: string;
+  status: boolean;
+  betAmount: number;
+  multiplier: number;
+  payout: number;
+  game: string;
+  user: {
+    name: string
+  }
+  userId: string
+  createdAt: string;
+}
 
 export default function BettingInterface() {
   const [betMode, setBetMode] = React.useState<"Manual" | "Auto">("Manual");
@@ -16,6 +31,7 @@ export default function BettingInterface() {
   const [multiplier, setMultiplier] = React.useState(2);
   const [winChance, setWinChance] = React.useState(49.5);
   const [rollValue, setRollValue] = React.useState(33);
+  const [gameTransactionData, setGameTransactionData] = React.useState<GameTransactionType[]>()
 
   console.log(sliderValue);
 
@@ -44,6 +60,20 @@ export default function BettingInterface() {
       console.log(error);
     }
   };
+
+  const gameTransaction = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:8000/api/game/gameTxn")
+      console.log(data)
+      setGameTransactionData(data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  React.useEffect(() => {
+    gameTransaction()
+  }, [rollValue])
 
   return (
     <div className="min-h-screen bg-[#1a2634]">
@@ -244,6 +274,7 @@ export default function BettingInterface() {
               </div>
             </div>
           </div>
+            <TransactionTable gameTransaction={gameTransactionData} />
         </div>
       </div>
     </div>

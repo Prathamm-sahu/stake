@@ -61,6 +61,7 @@ export const diceLogic = async (req: Request, res: Response) => {
           multiplier: multiplier,
           status: isWin,
           payout: payout,
+          game: "Dice"
       },
     });
 
@@ -86,7 +87,14 @@ export const getGamesTxn = async (req: Request, res: Response)=>{
       orderBy: {
         createdAt: "desc",
       },
-      take:5,
+      take: 10,
+      include: {
+        user: {
+          select: {
+            name: true
+          }
+        }
+      }
     });
     res.status(200).json(games);
   } catch (error) {
